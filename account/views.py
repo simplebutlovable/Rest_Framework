@@ -1,6 +1,8 @@
-from django.shortcuts import render,redirect
-from django.contrib.auth import login,authenticate,logout
-from account.forms import RegistrationForm,AccountAuthenticationForm,AccountUpdateForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from account.forms import RegistrationForm, AccountAuthenticationForm, AccountUpdateForm
+from blog.models import BlogPost
+
 
 
 def regsitration_view(request):
@@ -38,7 +40,7 @@ def login_view(request):
         if form.is_valid():
             email = request.POST['email']
             password = request.POST['password']
-            user = authenticate(email=email,password=password)
+            user = authenticate(email=email, password=password)
 
             if user:
                 login(request, user)
@@ -58,9 +60,14 @@ def account_view(request):
     context = {}
 
     if request.POST:
-        form = AccountUpdateForm(request.POST,instance=request.user)
+        form = AccountUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
+            form.initial = {
+                "email": request.user.email,
+                "username": request.user.username,
+            }
             form.save()
+            context['success_message'] ="Updated"
 
     else:
         form = AccountUpdateForm(
@@ -71,4 +78,10 @@ def account_view(request):
         )
 
     context['account_form'] = form
-    return render(request,'account/account.html', context)
+    blog_posts = BlogPost.objects.filter(author=request.user)
+    context['blog_posts'] = blog_posts
+    return render(request, 'account/account.html', context)
+
+
+def must_authenticate_view(request):
+    return render(request, 'account/must_authenticate.html', {})

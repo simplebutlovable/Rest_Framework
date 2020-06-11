@@ -37,7 +37,7 @@ class AccountUpdateForm(forms.ModelForm):
         if self.is_valid():
             email = self.cleaned_data['email']
             try:
-                account = Account.object.exclude(pk=self.instance.pk).get(email=email)
+                account = Account.objects.exclude(pk=self.instance.pk).get(email=email)
 
             except Account.DoesNotExist:
                 return email
@@ -47,7 +47,7 @@ class AccountUpdateForm(forms.ModelForm):
         if self.is_valid():
             username = self.cleaned_data['username']
             try:
-                account = Account.object.exclude(pk=self.instance.pk).get(username=username)
+                account = Account.objects.exclude(pk=self.instance.pk).get(username=username)
 
             except Account.DoesNotExist:
                 return username
